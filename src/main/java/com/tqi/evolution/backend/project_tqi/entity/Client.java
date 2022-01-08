@@ -1,5 +1,6 @@
 package com.tqi.evolution.backend.project_tqi.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
@@ -14,13 +15,13 @@ public class Client {
     private Long id;
 
     @Column
-    private String nome;
+    private String name;
 
-    @Column
+    @Column(unique = true)
     private String email;
 
-    @Column
-    private String senha;
+    @JsonProperty (access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
 
     @Column
     private String cpf;
@@ -29,10 +30,12 @@ public class Client {
     private String rg;
 
     @Column
-    private String endereco;
+    private String address;
 
     @Column
-    private Double renda;
+    private Double income;
+
+
 
 
 
