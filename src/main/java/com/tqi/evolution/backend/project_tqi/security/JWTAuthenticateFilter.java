@@ -22,7 +22,7 @@ import java.util.Date;
 
 public class JWTAuthenticateFilter extends UsernamePasswordAuthenticationFilter {
 
-    public static final int TOKEN_EXPIRATION = 600_000;
+    public static final int TOKEN_EXPIRATION = 6000000;
 
     public static final String TOKEN_PASSWORD = "d789e6c3-80f4-450c-bf82-75326b73caa0"; // não pode deixar a senha no codgo, somente para teste
 

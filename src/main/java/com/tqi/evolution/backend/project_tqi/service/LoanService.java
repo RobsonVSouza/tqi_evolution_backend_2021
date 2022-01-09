@@ -1,52 +1,66 @@
 package com.tqi.evolution.backend.project_tqi.service;
 
+import com.tqi.evolution.backend.project_tqi.constant.LoanStatus;
+import com.tqi.evolution.backend.project_tqi.dto.LoanDTO;
+import com.tqi.evolution.backend.project_tqi.dto.SimpleLoanDTO;
 import com.tqi.evolution.backend.project_tqi.entity.Client;
-import com.tqi.evolution.backend.project_tqi.entity.Loan;
+import com.tqi.evolution.backend.project_tqi.mapper.SimpleLoanMapper;
 import com.tqi.evolution.backend.project_tqi.repository.ClientRepository;
+import com.tqi.evolution.backend.project_tqi.repository.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 
 @Service
 public class LoanService {
 
-
     @Autowired
     private ClientRepository clientRepository;
 
-    public Loan simulate(Loan loan) {
+    @Autowired
+    private LoanRepository loanRepository;
 
-        Client client = clientRepository.getById(loan.getClientId().get(0));
-
-        Integer parcelAmount = loan.getParcelAmount();
-        Double amount = loan.getAmount();
-
-        Double income = client.getIncome();
-
-        Double minimum = income * 30 / 100;
-        Double interestRate = parcelAmount * 0.01;
-        Double fees = amount * interestRate;
-        Double total = amount + fees;
-        Double installmentAmount = total / parcelAmount;
+    @Autowired
+    private SimpleLoanMapper simpleLoanMapper;
 
 
-        if (parcelAmount <= 3 && installmentAmount <= minimum) {
-            System.out.printf("Loan sem juros : %.2f \n", amount);
-            System.out.printf("valor da parcela : %.2f\n ", amount / parcelAmount);
-        } else if (parcelAmount <= 3 && installmentAmount > minimum) {
-            System.out.println("Não é possivel valordo emprestimo, parcela exede 30% da renda");
+    public SimpleLoanDTO simulate(LoanDTO loan) {
+
+        SimpleLoanDTO simpleLoanDTO = new SimpleLoanDTO();
+
+        Client client = clientRepository.getById(loan.getClientId());
+        if (client.getId() == null) {
+            throw new EntityNotFoundException();
         }
-        if (parcelAmount > 4 && installmentAmount > minimum) {
-            System.out.println("Não é possivel valor do emprestimo, parcela exede 20% da renda");
-        } else if (parcelAmount > 4 && installmentAmount <= minimum) {
-            System.out.printf("Taxa de juros : %.2f %%\n", interestRate);
-            System.out.printf("Loan solicitado %.2f%%\n", amount);
-            System.out.printf("juros a ser pago %.2f%%\n", fees);
-            System.out.printf("valor total a ser pago %.2f%%\n", total);
-            System.out.printf("Valor das parcelas é %.2f%%\n", installmentAmount);
 
+        Integer installmentsQuantity = loan.getInstallmentsQuantity(); // quantidade de parcela
+
+        Double requestedAmount = loan.getRequestedAmount(); // valor do emprestimo
+        Double income = client.getIncome(); // renda do cliente
+
+        Double minimum = income * 0.30;
+        Double interestRate = installmentsQuantity * 0.01; // juros por parcela
+        Double fees = requestedAmount * interestRate;
+        Double loanWithInterest = requestedAmount + fees;
+        Double installmentValue = loanWithInterest / installmentsQuantity;
+
+        simpleLoanDTO.setRequestedAmount(requestedAmount);
+        simpleLoanDTO.setInstallmentValue(installmentValue);
+        simpleLoanDTO.setInstallmentsQuantity(installmentsQuantity);
+        simpleLoanDTO.setLoanWithInterest(loanWithInterest);
+        simpleLoanDTO.setFirstInstallment(loan.getFirstInstallment());
+
+        if (installmentValue > minimum) {
+            simpleLoanDTO.setStatus(LoanStatus.REJECT);
+            simpleLoanDTO.setMessage("Não é possivel o emprestimo, valor da parcela exede 30% da renda");
+        } else if (installmentValue <= minimum) {
+            simpleLoanDTO.setStatus(LoanStatus.APPROVED);
+            simpleLoanDTO.setMessage("Emprestimo aprovado!");
         }
-        return null;
+        simpleLoanDTO.setCode(loanRepository.save(simpleLoanMapper.toEntity(simpleLoanDTO)).getId());
+
+        return simpleLoanDTO;
     }
 
 

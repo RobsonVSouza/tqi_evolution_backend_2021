@@ -1,5 +1,6 @@
 package com.tqi.evolution.backend.project_tqi.entity;
 
+import com.tqi.evolution.backend.project_tqi.constant.LoanStatus;
 import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
@@ -20,13 +21,25 @@ public class Loan {
     private List<Long> clientId;
 
     @Column
-    private Double amount;
+    private Double requestedAmount; //valor solicitado
 
     @Column
-    private Instant datePortion;
+    private Instant firstInstallment; //data da primeira parcela
 
     @Column
-    private Integer parcelAmount;
+    private Double installmentValue; //valor da parcela
 
+    @Column
+    private Integer installmentsQuantity; // quantidade de parcela
+
+    @Column
+    private Double loanWithInterest; // emprestimo + juros (valor total)
+
+    @Column
+    private String message; // resultado do emprestimo
+
+    @Enumerated(value = EnumType.STRING)
+    @Column
+    private LoanStatus status;
 
 }
