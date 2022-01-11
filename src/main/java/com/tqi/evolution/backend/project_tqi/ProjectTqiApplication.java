@@ -14,7 +14,6 @@ public class ProjectTqiApplication  {
 		SpringApplication.run(ProjectTqiApplication.class, args);
 	}
 
-
 	@Bean
 	public PasswordEncoder getPasswordEncoder(){
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();

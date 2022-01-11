@@ -17,8 +17,8 @@ public class Loan {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @OneToMany(targetEntity = Client.class)
-    private List<Long> clientId;
+    @OneToOne(targetEntity = Client.class)
+    private Client client;
 
     @Column
     private Double requestedAmount; //valor solicitado

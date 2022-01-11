@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,30 +30,27 @@ public class ClientController {
     }
 
     @GetMapping(value = "/client")
-    public List<Client> getAllClient(){
+    public List<Client> getAllClient() {
         return clientService.getAll();
     }
 
-
     @PostMapping(value = "/register")
-    public Client saveClient(@RequestBody Client client){
+    public Client saveClient(@Valid @RequestBody Client client) {
         client.setPassword(encoder.encode(client.getPassword()));
         return clientService.save(client);
     }
 
     @GetMapping(value = "/validate")
-    public ResponseEntity<Boolean> validatePassword(@RequestParam String email, @RequestParam String password){
+    public ResponseEntity<Boolean> validatePassword(@RequestParam String email, @RequestParam String password) {
 
         Optional<Client> optionalClient = clientService.findByEmail(email);
-        if (optionalClient.isEmpty()){
+        if (optionalClient.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
 
-         boolean valid = encoder.matches(password, optionalClient.get().getPassword());
+        boolean valid = encoder.matches(password, optionalClient.get().getPassword());
 
         HttpStatus status = (valid) ? HttpStatus.OK : HttpStatus.UNAUTHORIZED;
         return ResponseEntity.status(status).body(valid);
-
     }
-
 }

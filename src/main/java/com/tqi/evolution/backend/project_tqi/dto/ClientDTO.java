@@ -1,6 +1,5 @@
 package com.tqi.evolution.backend.project_tqi.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
